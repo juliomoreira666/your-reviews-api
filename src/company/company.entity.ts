@@ -60,4 +60,6 @@ export class Company {
 
   @Column({ type: 'decimal', precision: 3, scale: 2, nullable: true })
   overallRating?: number;
+
+  @Column({ nullable: true }) numberOfReviews: number;
 }

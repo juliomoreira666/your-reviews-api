@@ -4,19 +4,19 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Company } from './company.entity';
-import { CompanyReviewsService } from '../services/company-reviews.service'; // Importe o serviço de avaliações
+import { CompanyReviewsService } from '../services/company-reviews.service';
 
 @Injectable()
 export class CompanyService {
   constructor(
     @InjectRepository(Company)
     private companyRepository: Repository<Company>,
-    private companyReviewsService: CompanyReviewsService, // Injeção do serviço de avaliações
+    private companyReviewsService: CompanyReviewsService,
   ) {}
 
   async findAllCompanies(): Promise<Company[]> {
     const companies = await this.companyRepository.find({
-      relations: ['reviews'], // Carrega as avaliações junto com as empresas
+      relations: ['reviews'],
     });
 
     for (const company of companies) {
@@ -24,6 +24,7 @@ export class CompanyService {
         await this.companyReviewsService.calculateOverallRating(
           company.company_id,
         );
+      company.numberOfReviews = company.reviews.length;
     }
 
     return companies;
@@ -32,7 +33,7 @@ export class CompanyService {
   async findCompanyById(companyId: string): Promise<Company> {
     const company = await this.companyRepository.findOne({
       where: { company_id: companyId },
-      relations: ['reviews'], // Carrega as avaliações junto com a empresa
+      relations: ['reviews'],
     });
 
     if (!company) {
@@ -43,7 +44,7 @@ export class CompanyService {
       await this.companyReviewsService.calculateOverallRating(
         company.company_id,
       );
-
+    company.numberOfReviews = company.reviews.length;
     return company;
   }
 
